@@ -1,29 +1,46 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    //Pieces
-    public GameObject[] pieces;
+    public GameObject[] piecePrefabs;
+    private List<GameObject> piecesPool = new List<GameObject>();
+    public GameObject blockPrefab;
+
     void Start()
     {
-        SpawnNext();
+        
+        foreach (GameObject prefab in piecePrefabs)
+        {
+            GameObject piece = Instantiate(prefab, transform.position, Quaternion.identity);
+            piece.SetActive(false);
+            piecesPool.Add(piece);
+        }
+        
+        Board.InitializeGrid(blockPrefab);
+        ActivateNextPiece();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
     }
 
-    public void SpawnNext()
+    public void ActivateNextPiece()
     {
-        //Random index
-        int i = Random.Range(0, pieces.Length);
+        //Seleccionar pieza aleatoria del Pool
+        int randomIndex = Random.Range(0, piecesPool.Count);
+        GameObject piece = piecesPool[randomIndex];
+
+        //Asegurarse de que este inactiva
+        while (piece.activeInHierarchy)
+        {
+            randomIndex = Random.Range(0, piecesPool.Count);
+            piece = piecesPool[randomIndex];
+        }
         
-        Vector3 v3 = new Vector3(4, 15, 0);
-        
-        //Spawn group at current position
-        Instantiate(pieces[i], transform.position, Quaternion.identity);
-        
+        //Activar la pieza
+        piece.transform.position = new Vector3(5, 16, 0);
+        piece.SetActive(true);
+        piece.GetComponent<Piece>().enabled = true;
     }
 }
